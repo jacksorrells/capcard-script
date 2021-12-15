@@ -161,7 +161,20 @@ function convertAviSoftwareEncoding {
     ffmpeg -i $sourceFileName -vcodec libx264 -acodec aac -b:v 9500k -pix_fmt yuv420p "${destinationFileName}.mp4"
 }
 
-#function convertAviToMp4 {}
+function convertAviToMp4 {
+    echo "Would you like to use: "
+    echo "1) Hardware Encoding"
+    echo "2) Software Encoding"
+    read encoding
+    
+    if [ $encoding == "1" ]; then
+        convertAviHardwareEncoding $1 $2
+    fi
+    
+    if [ $encoding == "2" ]; then
+        convertAviSoftwareEncoding $1 $2
+    fi
+}
 
 if [ $1 ]; then
 	if [ $1 == "check-devices" ]; then
