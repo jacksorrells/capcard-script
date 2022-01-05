@@ -125,55 +125,20 @@ function captureAV {
     ffmpeg -f v4l2 -thread_queue_size 1024 -input_format $inputFormat -video_size $videoSize -framerate $framerate -i $inputSource -f pulse -thread_queue_size 1024 -i default -codec copy "$fileName.avi"
 }
 
-# problem with the _pix_fmt
-# might just find different angle
-function convertAviHardwareEncoding {
-    if [ $1 ]; then
-        sourceFileName=$1
-    else
-        getSourceFileName
-    fi
-    
-    if [ $2 ]; then
-        destinationFileName=$2
-    else
-        getDestinationFileName
-    fi
-
-    ffmpeg -i test.avi -vcodec h264_omx -acodec aac -b:v 9500k -pix_fmt yuv420p test.mp4
-    #ffmpeg -i $sourceFileName -vcodec h264_omx -acodec aac -b:v 9500k -pix_fmt yuv420p "${destinationFileName}.mp4"
-}
-
-# untested
-function convertAviSoftwareEncoding {
-    if [ $1 ]; then
-        sourceFileName=$1
-    else
-        getSourceFileName
-    fi
-    
-    if [ $2 ]; then
-        destinationFileName=$2
-    else
-        getDestinationFileName
-    fi
-
-    ffmpeg -i $sourceFileName -vcodec libx264 -acodec aac -b:v 9500k -pix_fmt yuv420p "${destinationFileName}.mp4"
-}
-
 function convertAviToMp4 {
-    echo "Would you like to use: "
-    echo "1) Hardware Encoding"
-    echo "2) Software Encoding"
-    read encoding
-    
-    if [ $encoding == "1" ]; then
-        convertAviHardwareEncoding $1 $2
+    if [ $1 ]; then
+        sourceFileName=$1
+    else
+        getSourceFileName
     fi
     
-    if [ $encoding == "2" ]; then
-        convertAviSoftwareEncoding $1 $2
+    if [ $2 ]; then
+        destinationFileName=$2
+    else
+        getDestinationFileName
     fi
+
+    ffmpeg -i $sourceFileName -c:v copy -c:a copy "${destinationFileName}-${videoSize}.mp4"
 }
 
 if [ $1 ]; then
@@ -201,14 +166,6 @@ if [ $1 ]; then
         captureAV $2 $3
     fi
     
-    if [ $1 == "convert-avi-hardware" ]; then
-        convertAviHardwareEncoding $2 $3
-    fi
-    
-    if [ $1 == "convert-avi-software" ]; then
-        convertAviSoftwareEncoding $2 $3
-    fi
-	
     if [ $1 == "convert-avi" ]; then
         convertAviToMp4 $2 $3
     fi
